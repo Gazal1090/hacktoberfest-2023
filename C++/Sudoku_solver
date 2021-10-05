@@ -1,0 +1,104 @@
+#include <iostream>
+#include <vector>
+#include<bits/stdc++.h>
+
+using namespace std;
+
+// 1. check if the initial board is valid or not
+// 2. DFS(back-tracking): for each empty cell, fill valid {1, 2, 3, .. 9}, 
+// recursively fill the rest of the cells, 
+// 3. In the end reach the row = 9 return true
+bool back_track(const vector<vector<char>>& board, int r, int c, vector<vector<int>> &row, vector<vector<int>> &col, vector<vector<int>> &sub );
+  
+bool sudokuSolve( const vector<vector<char>>& board ) {
+  
+  vector<vector<int>> row(9,vector<int>(10,0));
+  vector<vector<int>> col(9,vector<int>(10,0));
+  vector<vector<int>> sub(9,vector<int>(10,0));
+  
+  for( int i = 0 ; i < 9 ; i++){
+    for( int j = 0 ; j < 9 ; j++){
+      
+      int digit = board[i][j]-'0';
+      int sub_index = i/3*3 + j/3;
+      
+      if( board[i][j] == '.')
+        continue;
+      
+      if( row[i][digit] == 1 || col[j][digit] == 1 || sub[sub_index][digit] == 1)
+         return false;
+      
+      row[i][digit]=1;
+      col[j][digit]=1;
+      sub[sub_index][digit]=1;   
+    }
+    
+  }
+  
+  return back_track(board,0,0,row,col,sub);  
+}
+
+bool back_track(const vector<vector<char>>& board, int r, int c, vector<vector<int>> &row, vector<vector<int>> &col, vector<vector<int>> &sub ){
+  
+  if( r >= 9)
+    return true;
+  
+  if( board[r][c] != '.'){
+      
+    if( c == 8)
+      return back_track(board,r+1,0,row,col,sub);
+    return back_track(board,r,c+1,row,col,sub);
+  }
+  
+  else{
+    
+    int sub_index = r/3*3 + c/3;
+    
+    for( int d = 1 ; d <= 9 ; d++){
+      
+      if( row[r][d] == 1 || col[c][d] == 1 || sub[sub_index][d] == 1)
+        continue;
+      
+      row[r][d] = 1;
+      col[c][d] = 1;
+      sub[sub_index][d] = 1;
+      
+      bool res;
+      
+      if( c == 8)
+        res = back_track(board,r+1,0,row,col,sub);
+      else
+        res = back_track(board,r,c+1,row,col,sub);
+      
+      if( res)
+        return true;
+      
+      row[r][d] = 0;
+      col[c][d] = 0;
+      sub[sub_index][d] = 0;
+    }
+  }
+  
+  return false;
+}
+
+
+int main() {
+
+  vector<vector<char>> board(9,vector<char>(9,'0'));
+  
+  cout<<"Add sudoku values as 'char' in row wise manner\n";
+  
+  for(int i = 0 ; i <  9 ;i++){
+      for(int j = 0 ; j < 9 ; j++)
+        cin >> board[i][j];
+  }
+  if( sudokuSolve( board )) 
+    cout<<"Valid :)";
+
+  else
+    cout<<"Invalid :(";
+    
+  
+  return 0;
+}
